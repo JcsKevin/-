@@ -1,0 +1,48 @@
+﻿@model IEnumerable<WebW1.Models.客戶資料統計>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+@using (Html.BeginForm())
+{
+    <tr>
+		<td colspan="3" align="right"><input type="submit" value="查詢" /></td>
+	</tr>
+    <tr>
+		<th>
+			@Html.DisplayNameFor(model => model.客戶名稱)
+			@Html.TextBox("search1", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
+		</th>
+        <th>
+            @Html.DisplayNameFor(model => model.客戶聯絡人數量)
+			@Html.TextBox("search2", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.客戶銀行資訊數量)
+			@Html.TextBox("search3", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
+        </th>
+    </tr>
+}
+@foreach (var item in Model)
+{
+	<tr>
+		<td>
+			@Html.ActionLink(item.客戶名稱.ToString(), "Index", "客戶資料", null , new { title = "客戶資料管理" })
+		</td>
+		<td>
+			@Html.ActionLink(item.客戶聯絡人數量.ToString(), "Index", "客戶聯絡人", null, new { title = "客戶聯絡人管理" })
+		</td>
+		<td>
+			@Html.ActionLink(item.客戶銀行資訊數量.ToString(), "Index", "客戶銀行資訊", null , new { title = "客戶聯絡人管理" })
+		</td>
+	</tr>
+}
+
+</table>
