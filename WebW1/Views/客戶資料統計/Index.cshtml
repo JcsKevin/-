@@ -1,48 +1,69 @@
 ﻿@model IEnumerable<WebW1.Models.客戶資料統計>
 
 @{
-    ViewBag.Title = "Index";
+	ViewBag.Title = "客戶資料統計";
 }
 
-<h2>Index</h2>
+@section breadcrumb {
+	<ul class="breadcrumb">
+		<li>
+			<i class="icon-home"></i>
+			@*<a href="index.html">*@Home@*</a>*@
+			<i class="icon-angle-right"></i>
+		</li>
+		<li><a href="#">客戶資料統計</li>
+	</ul>
+}
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+	關鍵字搜尋(資料庫)：@Html.TextBox("search1", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
 </p>
-<table class="table">
-@using (Html.BeginForm())
-{
-    <tr>
-		<td colspan="3" align="right"><input type="submit" value="查詢" /></td>
-	</tr>
-    <tr>
-		<th>
-			@Html.DisplayNameFor(model => model.客戶名稱)
-			@Html.TextBox("search1", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
-		</th>
-        <th>
-            @Html.DisplayNameFor(model => model.客戶聯絡人數量)
-			@Html.TextBox("search2", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.客戶銀行資訊數量)
-			@Html.TextBox("search3", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
-        </th>
-    </tr>
-}
-@foreach (var item in Model)
-{
-	<tr>
-		<td>
-			@Html.ActionLink(item.客戶名稱.ToString(), "Index", "客戶資料", null , new { title = "客戶資料管理" })
-		</td>
-		<td>
-			@Html.ActionLink(item.客戶聯絡人數量.ToString(), "Index", "客戶聯絡人", null, new { title = "客戶聯絡人管理" })
-		</td>
-		<td>
-			@Html.ActionLink(item.客戶銀行資訊數量.ToString(), "Index", "客戶銀行資訊", null , new { title = "客戶聯絡人管理" })
-		</td>
-	</tr>
-}
+<div class="row-fluid sortable">
+	<div class="box span12">
+		<div class="box-header" data-original-title>
+			<h2><i class="halflings-icon user"></i><span class="break"></span>@ViewBag.Title</h2>
+			<div class="box-icon">
+				@*<a href="#" class="btn-setting"><i class="halflings-icon wrench"></i></a>*@
+				<a href="#" class="btn-minimize"><i class="halflings-icon chevron-up"></i></a>
+				@*<a href="#" class="btn-close"><i class="halflings-icon remove"></i></a>*@
+			</div>
+		</div>
+		<div class="box-content">
+			<table class="table table-striped table-bordered bootstrap-datatable datatable">
+				<thead>
+					@using (Html.BeginForm())
+					{
+						<tr>
+							<th>
+								@Html.DisplayNameFor(model => model.客戶名稱)
+							</th>
+							<th>
+								@Html.DisplayNameFor(model => model.客戶聯絡人數量)
+							</th>
+							<th>
+								@Html.DisplayNameFor(model => model.客戶銀行資訊數量)
+							</th>
+						</tr>
+					}
+				</thead>
+				<tbody>
+					@foreach (var item in Model)
+					{
+						<tr>
+							<td>
+								@Html.ActionLink(item.客戶名稱.ToString(), "Index", "客戶資料", null, new { title = "客戶資料管理" })
+							</td>
+							<td>
+								@Html.ActionLink(item.客戶聯絡人數量.ToString(), "Index", "客戶聯絡人", null, new { title = "客戶聯絡人管理" })
+							</td>
+							<td>
+								@Html.ActionLink(item.客戶銀行資訊數量.ToString(), "Index", "客戶銀行資訊", null, new { title = "客戶聯絡人管理" })
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
 
-</table>
+</div>

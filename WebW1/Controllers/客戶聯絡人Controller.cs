@@ -12,39 +12,19 @@ namespace WebW1.Controllers
 {
     public class 客戶聯絡人Controller : Controller
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
+		客戶聯絡人Repository ContactRepository = RepositoryHelper.Get客戶聯絡人Repository();
+		客戶資料Repository ClientRepository = RepositoryHelper.Get客戶資料Repository();
 
         // GET: 客戶聯絡人
-		public ActionResult Index(string search1, string search2, string search3, string search4, string search5, string search6)
+		public ActionResult Index(string search1)
         {
-			var 客戶聯絡人 = db.客戶聯絡人.Include(客 => 客.客戶資料).AsQueryable();
-			客戶聯絡人 = 客戶聯絡人.Where(p => p.是否已刪除 == false);
+			var data = ContactRepository.All(false).Include(客 => 客.客戶資料);
 			if (!String.IsNullOrEmpty(search1))
 			{
-				客戶聯絡人 = 客戶聯絡人.Where(p => p.客戶資料.客戶名稱.Contains(search1));
-			}
-			if (!String.IsNullOrEmpty(search2))
-			{
-				客戶聯絡人 = 客戶聯絡人.Where(p => p.職稱.Contains(search2));
-			}
-			if (!String.IsNullOrEmpty(search3))
-			{
-				客戶聯絡人 = 客戶聯絡人.Where(p => p.姓名.Contains(search3));
-			}
-			if (!String.IsNullOrEmpty(search4))
-			{
-				客戶聯絡人 = 客戶聯絡人.Where(p => p.Email.Contains(search4));
-			}
-			if (!String.IsNullOrEmpty(search5))
-			{
-				客戶聯絡人 = 客戶聯絡人.Where(p => p.手機.Contains(search5));
-			}
-			if (!String.IsNullOrEmpty(search6))
-			{
-				客戶聯絡人 = 客戶聯絡人.Where(p => p.電話.Contains(search6));
+				data = data.Where(p => p.客戶資料.客戶名稱.Contains(search1) || p.職稱.Contains(search1) || p.姓名.ToString().Contains(search1) || p.Email.ToString().Contains(search1) || p.手機.Contains(search1) || p.電話.Contains(search1));
 			}
 
-			return View(客戶聯絡人);
+			return View(data);
         }
 
         // GET: 客戶聯絡人/Details/5
@@ -54,18 +34,18 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            if (客戶聯絡人 == null)
+			var data = ContactRepository.GetByID(id);
+            if (data == null)
             {
                 return HttpNotFound();
             }
-            return View(客戶聯絡人);
+            return View(data);
         }
 
         // GET: 客戶聯絡人/Create
         public ActionResult Create()
         {
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱");
+			ViewBag.客戶Id = new SelectList(ClientRepository.All(false), "Id", "客戶名稱");
             return View();
         }
 
@@ -78,19 +58,12 @@ namespace WebW1.Controllers
         {
             if (ModelState.IsValid)
             {
-				var num = db.客戶聯絡人.Where(p => p.客戶Id == 客戶聯絡人.客戶Id && p.Email == 客戶聯絡人.Email).ToList().Count();
-				if (num != 1) {			
-					db.客戶聯絡人.Add(客戶聯絡人);
-					db.SaveChanges();
-					return RedirectToAction("Index");
-				}
-				else
-				{
-					throw new Exception("同一個客戶下的聯絡人，其 Email 不能重複");
-				}
+				ContactRepository.Add(客戶聯絡人);
+				ContactRepository.UnitOfWork.Commit();
+				return RedirectToAction("Index");
             }
 
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+			ViewBag.客戶Id = new SelectList(ClientRepository.All(false), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -101,13 +74,13 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            if (客戶聯絡人 == null)
+			var data = ContactRepository.GetByID(id);
+			if (data == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
-            return View(客戶聯絡人);
+			ViewBag.客戶Id = new SelectList(ClientRepository.All(false), "Id", "客戶名稱", data.客戶Id);
+			return View(data);
         }
 
         // POST: 客戶聯絡人/Edit/5
@@ -119,11 +92,16 @@ namespace WebW1.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(客戶聯絡人).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+				var data = ContactRepository.GetByID(客戶聯絡人.Id);
+				var includeBind = "職稱,姓名,Email,手機,電話".Split(',');
+
+				if (TryUpdateModel<客戶聯絡人>(data, includeBind))
+				{
+					ContactRepository.UnitOfWork.Commit();
+					return RedirectToAction("Index");
+				}
             }
-            ViewBag.客戶Id = new SelectList(db.客戶資料, "Id", "客戶名稱", 客戶聯絡人.客戶Id);
+			ViewBag.客戶Id = new SelectList(ClientRepository.All(false), "Id", "客戶名稱", 客戶聯絡人.客戶Id);
             return View(客戶聯絡人);
         }
 
@@ -134,12 +112,12 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-            if (客戶聯絡人 == null)
+			var data = ContactRepository.GetByID(id);
+            if (data == null)
             {
                 return HttpNotFound();
             }
-            return View(客戶聯絡人);
+            return View(data);
         }
 
         // POST: 客戶聯絡人/Delete/5
@@ -147,9 +125,13 @@ namespace WebW1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶聯絡人 客戶聯絡人 = db.客戶聯絡人.Find(id);
-			客戶聯絡人.是否已刪除 = true;
-            db.SaveChanges();
+			var data = ContactRepository.GetByID(id);
+			data.是否已刪除 = true;
+
+			if (TryUpdateModel<客戶聯絡人>(data))
+			{
+				ContactRepository.UnitOfWork.Commit();
+			}
             return RedirectToAction("Index");
         }
 
@@ -157,7 +139,8 @@ namespace WebW1.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+				((客戶資料Entities)ContactRepository.UnitOfWork.Context).Dispose();
+				((客戶資料Entities)ClientRepository.UnitOfWork.Context).Dispose();
             }
             base.Dispose(disposing);
         }

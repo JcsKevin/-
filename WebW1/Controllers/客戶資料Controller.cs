@@ -12,39 +12,18 @@ namespace WebW1.Controllers
 {
     public class 客戶資料Controller : Controller
     {
-        private 客戶資料Entities db = new 客戶資料Entities();
+		客戶資料Repository repo = RepositoryHelper.Get客戶資料Repository();
 
         // GET: 客戶資料
-		public ActionResult Index(string search1, string search2, string search3, string search4, string search5, string search6)
+		public ActionResult Index(string search1)
         {
-			var 客戶資料 = db.客戶資料.AsQueryable();
-			客戶資料 = 客戶資料.Where(p => p.是否已刪除 == false);
+			var data = repo.All(false);
 			if (!String.IsNullOrEmpty(search1))
 			{
-				客戶資料 = 客戶資料.Where(p => p.客戶名稱.Contains(search1));
-			}
-			if (!String.IsNullOrEmpty(search2))
-			{
-				客戶資料 = 客戶資料.Where(p => p.統一編號.Contains(search2));
-			}
-			if (!String.IsNullOrEmpty(search3))
-			{
-				客戶資料 = 客戶資料.Where(p => p.電話.Contains(search3));
-			}
-			if (!String.IsNullOrEmpty(search4))
-			{
-				客戶資料 = 客戶資料.Where(p => p.傳真.Contains(search4));
-			}
-			if (!String.IsNullOrEmpty(search5))
-			{
-				客戶資料 = 客戶資料.Where(p => p.地址.Contains(search5));
-			}
-			if (!String.IsNullOrEmpty(search6))
-			{
-				客戶資料 = 客戶資料.Where(p => p.Email.Contains(search6));
+				data = data.Where(p => p.客戶名稱.Contains(search1) || p.統一編號.Contains(search1) || p.電話.Contains(search1) || p.傳真.Contains(search1) || p.地址.Contains(search1) || p.Email.Contains(search1));
 			}
 
-			return View(客戶資料);
+			return View(data);
         }
 
         // GET: 客戶資料/Details/5
@@ -54,12 +33,13 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
+
+			var data = repo.GetByID(id);
+			if (data == null)
             {
                 return HttpNotFound();
             }
-            return View(客戶資料);
+			return View(data);
         }
 
         // GET: 客戶資料/Create
@@ -77,8 +57,8 @@ namespace WebW1.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.客戶資料.Add(客戶資料);
-                db.SaveChanges();
+				repo.Add(客戶資料);
+				repo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -92,12 +72,12 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
+			var data = repo.GetByID(id);
+			if (data == null)
             {
                 return HttpNotFound();
             }
-            return View(客戶資料);
+			return View(data);
         }
 
         // POST: 客戶資料/Edit/5
@@ -109,11 +89,17 @@ namespace WebW1.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(客戶資料).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+				var data = repo.GetByID(客戶資料.Id);
+				//設定要取得哪些欄位 //於延遲驗證時僅會傳入有對應到的欄位
+				var includeBind = "客戶名稱,統一編號,電話,傳真,地址,Email".Split(',');
+
+				if (TryUpdateModel<客戶資料>(data, includeBind))
+				{
+					repo.UnitOfWork.Commit();
+					return RedirectToAction("Index");
+				}
             }
-            return View(客戶資料);
+			return View(客戶資料);
         }
 
         // GET: 客戶資料/Delete/5
@@ -123,12 +109,12 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-            if (客戶資料 == null)
-            {
-                return HttpNotFound();
-            }
-            return View(客戶資料);
+			var data = repo.GetByID(id);
+			if (data == null)
+			{
+				return HttpNotFound();
+			}
+			return View(data);
         }
 
         // POST: 客戶資料/Delete/5
@@ -136,9 +122,18 @@ namespace WebW1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
-			客戶資料.是否已刪除 = true;
-            db.SaveChanges();
+			if (ModelState.IsValid)
+			{
+				var data = repo.GetByID(id);
+				data.是否已刪除 = true;
+				//設定要取得哪些欄位 //於延遲驗證時僅會傳入有對應到的欄位
+				//var includeBind = "客戶名稱,統一編號,電話,傳真,地址,Email".Split(',');
+
+				if (TryUpdateModel<客戶資料>(data))
+				{
+					repo.UnitOfWork.Commit();
+				}
+			}
             return RedirectToAction("Index");
         }
 
@@ -146,7 +141,7 @@ namespace WebW1.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+				((客戶資料Entities)repo.UnitOfWork.Context).Dispose();
             }
             base.Dispose(disposing);
         }

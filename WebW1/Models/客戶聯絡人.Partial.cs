@@ -5,13 +5,21 @@ namespace WebW1.Models
     using System.ComponentModel.DataAnnotations;
     
     [MetadataType(typeof(客戶聯絡人MetaData))]
-    public partial class 客戶聯絡人
+    public partial class 客戶聯絡人// :IValidatableObject
     {
 		public 客戶聯絡人()
         {
             this.是否已刪除 = false;
         }
-    }
+
+		//public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+		//{
+		//	if (Email!="")
+		//	{
+		//		yield return new ValidationResult("Email不可有值", new[] { "Email" });
+		//	}
+		//}
+	}
     
 
     public partial class 客戶聯絡人MetaData
