@@ -19,7 +19,11 @@ namespace WebW1.Models
     {
         [Required]
         public int Id { get; set; }
-        
+
+		[StringLength(50, ErrorMessage = "欄位長度不得大於 250 個字元")]
+		[Required]
+		public string 客戶分類 { get; set; }
+
         [StringLength(50, ErrorMessage="欄位長度不得大於 50 個字元")]
         [Required]
         public string 客戶名稱 { get; set; }

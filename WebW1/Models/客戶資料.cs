@@ -15,7 +15,6 @@ namespace WebW1.Models
     public partial class 客戶資料
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-    
         public int Id { get; set; }
         public string 客戶名稱 { get; set; }
         public string 統一編號 { get; set; }
@@ -24,6 +23,7 @@ namespace WebW1.Models
         public string 地址 { get; set; }
         public string Email { get; set; }
         public Nullable<bool> 是否已刪除 { get; set; }
+        public string 客戶分類 { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<客戶銀行資訊> 客戶銀行資訊 { get; set; }

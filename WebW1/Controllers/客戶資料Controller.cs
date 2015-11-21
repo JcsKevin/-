@@ -12,16 +12,17 @@ namespace WebW1.Controllers
 {
     public class 客戶資料Controller : Controller
     {
-		客戶資料Repository repo = RepositoryHelper.Get客戶資料Repository();
+		客戶資料Repository ClientRepository = RepositoryHelper.Get客戶資料Repository();
 
         // GET: 客戶資料
 		public ActionResult Index(string search1)
         {
-			var data = repo.All(false);
+			var data = ClientRepository.All(false);
 			if (!String.IsNullOrEmpty(search1))
 			{
 				data = data.Where(p => p.客戶名稱.Contains(search1) || p.統一編號.Contains(search1) || p.電話.Contains(search1) || p.傳真.Contains(search1) || p.地址.Contains(search1) || p.Email.Contains(search1));
 			}
+			//ViewBag.客戶分類 = new SelectList(ClientRepository.All(false), "客戶分類", "客戶分類", "");
 
 			return View(data);
         }
@@ -34,7 +35,7 @@ namespace WebW1.Controllers
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
 
-			var data = repo.GetByID(id);
+			var data = ClientRepository.GetByID(id);
 			if (data == null)
             {
                 return HttpNotFound();
@@ -57,8 +58,8 @@ namespace WebW1.Controllers
         {
             if (ModelState.IsValid)
             {
-				repo.Add(客戶資料);
-				repo.UnitOfWork.Commit();
+				ClientRepository.Add(客戶資料);
+				ClientRepository.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -72,7 +73,7 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-			var data = repo.GetByID(id);
+			var data = ClientRepository.GetByID(id);
 			if (data == null)
             {
                 return HttpNotFound();
@@ -89,13 +90,13 @@ namespace WebW1.Controllers
         {
             if (ModelState.IsValid)
             {
-				var data = repo.GetByID(客戶資料.Id);
+				var data = ClientRepository.GetByID(客戶資料.Id);
 				//設定要取得哪些欄位 //於延遲驗證時僅會傳入有對應到的欄位
 				var includeBind = "客戶名稱,統一編號,電話,傳真,地址,Email".Split(',');
 
 				if (TryUpdateModel<客戶資料>(data, includeBind))
 				{
-					repo.UnitOfWork.Commit();
+					ClientRepository.UnitOfWork.Commit();
 					return RedirectToAction("Index");
 				}
             }
@@ -109,7 +110,7 @@ namespace WebW1.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-			var data = repo.GetByID(id);
+			var data = ClientRepository.GetByID(id);
 			if (data == null)
 			{
 				return HttpNotFound();
@@ -124,14 +125,14 @@ namespace WebW1.Controllers
         {
 			if (ModelState.IsValid)
 			{
-				var data = repo.GetByID(id);
+				var data = ClientRepository.GetByID(id);
 				data.是否已刪除 = true;
 				//設定要取得哪些欄位 //於延遲驗證時僅會傳入有對應到的欄位
 				//var includeBind = "客戶名稱,統一編號,電話,傳真,地址,Email".Split(',');
 
 				if (TryUpdateModel<客戶資料>(data))
 				{
-					repo.UnitOfWork.Commit();
+					ClientRepository.UnitOfWork.Commit();
 				}
 			}
             return RedirectToAction("Index");
@@ -141,7 +142,7 @@ namespace WebW1.Controllers
         {
             if (disposing)
             {
-				((客戶資料Entities)repo.UnitOfWork.Context).Dispose();
+				((客戶資料Entities)ClientRepository.UnitOfWork.Context).Dispose();
             }
             base.Dispose(disposing);
         }

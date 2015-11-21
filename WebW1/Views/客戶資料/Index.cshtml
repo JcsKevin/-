@@ -19,6 +19,7 @@
 	@using (Html.BeginForm())
 	{
 		@:關鍵字搜尋(資料庫)：@Html.TextBox("search1", "", new { placeholder = "請輸入關鍵字", @onchange = "submit();" })
+		//@ViewBag.客戶分類;
 	}
 	@Html.ActionLink("新增", "Create", null, new { @class = "btn btn-success" })
 </p>
